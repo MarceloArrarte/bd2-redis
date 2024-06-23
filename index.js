@@ -8,30 +8,40 @@ const client = await createClient()
     return client;
   });
 
-const delay = (max) => () => Math.random() * max;
-const delay100 = delay(100);
-
-let t = delay100();
-let entryNumber = 1;
-
-setInterval(async () => {
-    const randomData = crypto.randomUUID();
-    await client.set((entryNumber++).toString(), randomData);
-    if (entryNumber % 20 == 0) {
-        console.log(`${entryNumber}. Uploading data...`)
-    }
-    t = delay100();
-}, t);
 
 const disconnect = async () => {
-    await client.disconnect();
-    console.log(`Disconnected from Redis!`);
+  await client.disconnect();
+  console.log(`Disconnected from Redis!`);
 }
 
 process.on('exit', disconnect);
 process.on('uncaughtException', disconnect);
 process.on('unhandledRejection', disconnect);
 process.on('SIGINT', async () => {
-    await disconnect();
-    process.exit();
+  await disconnect();
+  process.exit();
 });
+  
+const delay = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
+const randomBelow = (max) => Math.random() * max;
+
+let entryNumber = 1;
+
+while (true) {
+  const randomData = crypto.randomUUID();
+
+  try {
+    await client.set((entryNumber++).toString(), randomData);
+
+    if (entryNumber % 20 == 0) {
+        console.log(`${entryNumber}. Uploading data...`);
+    }
+
+    await delay(randomBelow(200));
+  }
+  catch (error) {
+    console.error(`Error sending data: ${error.message}`);
+    console.error('Retrying...');
+    await delay(1000);
+  }
+}
