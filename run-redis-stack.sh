@@ -1,1 +1,1 @@
-sudo docker run --name redis-stack -p 6379:6379 -p 8001:8001 redis/redis-stack:latest
+sudo docker run --name redis-stack-prueba -p 6390:6379 -p 8010:8001 redis/redis-stack:latest

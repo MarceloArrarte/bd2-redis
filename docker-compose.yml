@@ -5,7 +5,8 @@ services:
     container_name: redis_pelado
     volumes:
       - ./data/combined:/data 
-    command: redis-server --save ''
+    environment:
+      - REDIS_ARGS=--save ''
     ports:
       - "6378:6379"
       - "8004:8001"
@@ -15,7 +16,8 @@ services:
     container_name: redis_rdb
     volumes:
       - ./data/rdb:/data
-    command: redis-server --save 900 1 --save 300 10 --save 60 10000 --dir /data
+    environment:
+      - REDIS_ARGS=--save 900 1 --save 300 10 --save 60 10000 --dir /data
     ports:
       - "6379:6379"
       - "8001:8001"
@@ -25,7 +27,8 @@ services:
     container_name: redis_aof
     volumes:
       - ./data/aof:/data
-    command: redis-server --appendonly yes --appendfsync everysec --dir /data
+    environment:
+      - REDIS_ARGS=--save '' --appendonly yes --appendfsync everysec --dir /data
     ports:
       - "6380:6379"
       - "8002:8001"
@@ -35,7 +38,8 @@ services:
     container_name: redis_combined
     volumes:
       - ./data/combined:/data
-    command: redis-server --save 900 1 --save 300 10 --save 60 10000 --appendonly yes --appendfsync everysec --dir /data
+    environment:
+      - REDIS_ARGS=--save 900 1 --save 300 10 --save 60 10000 --appendonly yes --appendfsync everysec --dir /data
     ports:
       - "6381:6379"
       - "8003:8001"
