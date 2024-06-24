@@ -2,6 +2,7 @@ import { createClient } from 'redis';
 import { config } from 'dotenv';
 
 config();
+console.log(`URL Redis: ${process.env.REDIS_URL}`);
 
 const client = await createClient({
   url: process.env.REDIS_URL
@@ -17,6 +18,7 @@ const client = await createClient({
 const disconnect = async () => {
   await client.disconnect();
   console.log(`Disconnected from Redis!`);
+  console.log(`Last entry processed: ${entryNumber}`);
 };
 
 process.on('exit', disconnect);
@@ -27,8 +29,8 @@ process.on('SIGINT', async () => {
   process.exit();
 });
   
-const delay = (ms) => new Promise((resolve, reject) => setTimeout(resolve, ms));
-const randomBelow = (max) => Math.random() * max;
+const DELAY_MS = Number(process.env.DELAY_MS);
+const delay = (ms = DELAY_MS) => new Promise((resolve, reject) => setTimeout(resolve, ms));
 
 let entryNumber = 1;
 
@@ -36,13 +38,14 @@ while (true) {
   const randomData = crypto.randomUUID();
 
   try {
-    await client.set((entryNumber++).toString(), randomData);
+    await client.set((entryNumber).toString(), randomData);
+    entryNumber++;
 
-    if (entryNumber % 20 == 0) {
+    if (entryNumber % 10 == 0) {
         console.log(`${entryNumber}. Uploading data...`);
     }
 
-    await delay(randomBelow(200));
+    await delay();
   }
   catch (error) {
     console.error(`Error sending data: ${error.message}`);
