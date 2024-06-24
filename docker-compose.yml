@@ -1,0 +1,48 @@
+version: '3.8'
+services:
+  redis_pelado:
+    image: redis/redis-stack:latest
+    container_name: redis_pelado
+    volumes:
+      - ./data/combined:/data 
+    command: redis-server --save ''
+    ports:
+      - "6378:6379"
+
+  redis_rdb:
+    image: redis/redis-stack:latest
+    container_name: redis_rdb
+    volumes:
+      - ./data/rdb:/data
+    command: redis-server --save 900 1 --save 300 10 --save 60 10000 --dir /data
+    ports:
+      - "6379:6379"
+
+  redis_aof:
+    image: redis/redis-stack:latest
+    container_name: redis_aof
+    volumes:
+      - ./data/aof:/data
+    command: redis-server --appendonly yes --appendfsync everysec --dir /data
+    ports:
+      - "6380:6379"
+
+  redis_combined:
+    image: redis/redis-stack:latest
+    container_name: redis_combined
+    volumes:
+      - ./data/combined:/data
+    command: redis-server --save 900 1 --save 300 10 --save 60 10000 --appendonly yes --appendfsync everysec --dir /data
+    ports:
+      - "6381:6379"
+
+  redis_sentinel:
+    image: bitnami/redis-sentinel:latest
+    container_name: redis_sentinel
+    environment:
+      - REDIS_MASTER_HOST=redis_combined
+      - REDIS_MASTER_PORT_NUMBER=6379
+      - REDIS_MASTER_SET=mymaster
+      - REDIS_SENTINEL_PORT_NUMBER=26379
+    ports:
+      - "26379:26379"
