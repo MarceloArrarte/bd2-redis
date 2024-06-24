@@ -1,6 +1,11 @@
 import { createClient } from 'redis';
+import { config } from 'dotenv';
 
-const client = await createClient()
+config();
+
+const client = await createClient({
+  url: process.env.REDIS_URL
+})
   .on('error', err => console.log('Redis Client Error', err))
   .connect()
   .then((client) => {
@@ -12,7 +17,7 @@ const client = await createClient()
 const disconnect = async () => {
   await client.disconnect();
   console.log(`Disconnected from Redis!`);
-}
+};
 
 process.on('exit', disconnect);
 process.on('uncaughtException', disconnect);
