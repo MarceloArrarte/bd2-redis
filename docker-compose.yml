@@ -43,14 +43,3 @@ services:
     ports:
       - "6381:6379"
       - "8003:8001"
-
-  redis_sentinel:
-    image: bitnami/redis-sentinel:latest
-    container_name: redis_sentinel
-    environment:
-      - REDIS_MASTER_HOST=redis_combined
-      - REDIS_MASTER_PORT_NUMBER=6379
-      - REDIS_MASTER_SET=mymaster
-      - REDIS_SENTINEL_PORT_NUMBER=26379
-    ports:
-      - "26379:26379"
